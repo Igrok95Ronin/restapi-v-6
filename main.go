@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func home(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +26,13 @@ func createSnippet(w http.ResponseWriter, r *http.Request) {
 }
 
 func showSnippet(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Форма для создания новой заметки...\n"))
+
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil || id < 1 {
+		http.NotFound(w, r)
+		return
+	}
+	fmt.Fprintf(w, "Отображение выбранной заметки с ID %d: ", id)
 	fmt.Fprintf(w, "%s", r.URL.Path)
 }
 

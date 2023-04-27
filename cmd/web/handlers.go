@@ -11,7 +11,7 @@ import (
 )
 
 type Home struct {
-	Title []string
+	Title string
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
@@ -43,21 +43,21 @@ func home(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var snipTitle []string
+	var snipTitle []Home
 	for rows.Next() {
 		var title string
 		err = rows.Scan(&title)
 		if err != nil {
 			log.Fatal(err)
 		}
-		snipTitle = append(snipTitle, title)
+
+		item := Home{
+			title,
+		}
+		snipTitle = append(snipTitle, item)
 	}
 
-	data := Home{
-		snipTitle,
-	}
-
-	err = ts.Execute(w, data)
+	err = ts.Execute(w, snipTitle)
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, "Internal Server Error", 500)
@@ -85,6 +85,11 @@ func showSnippet(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", r.URL.Path)
 }
 
+type Abouts struct {
+	Id    int
+	About string
+}
+
 func about(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"./ui/html/about.page.html",
@@ -98,7 +103,36 @@ func about(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
-	err = ts.Execute(w, nil)
+
+	db, err := sql.Open("mysql", "root:@/snippetbox")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT id, title FROM snippets")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var sAbout []Abouts
+	for rows.Next() {
+		var id int
+		var title string
+		err = rows.Scan(&id, &title)
+		if err != nil {
+			log.Fatal(err)
+		}
+		item := Abouts{
+			id,
+			title,
+		}
+		sAbout = append(sAbout, item)
+
+	}
+
+	err = ts.Execute(w, sAbout)
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, "Internal Server Error", 500)

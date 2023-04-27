@@ -3,5 +3,7 @@
 {{define "title"}}О нас{{end}}
 {{define "main"}}
     <h2>О нас</h2>
-    <p>Пока здесь ничего нет!</p>
+{{range .}}
+    <p>{{.Id}} {{.About}}</p>
+{{end}}
 {{end}}

@@ -1,12 +1,18 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 )
+
+type Home struct {
+	Title []string
+}
 
 func home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
@@ -26,7 +32,32 @@ func home(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
-	err = ts.Execute(w, nil)
+
+	db, err := sql.Open("mysql", "root:@/snippetbox")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT title FROM snippets")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var snipTitle []string
+	for rows.Next() {
+		var title string
+		err = rows.Scan(&title)
+		if err != nil {
+			log.Fatal(err)
+		}
+		snipTitle = append(snipTitle, title)
+	}
+
+	data := Home{
+		snipTitle,
+	}
+
+	err = ts.Execute(w, data)
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, "Internal Server Error", 500)

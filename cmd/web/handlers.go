@@ -140,6 +140,11 @@ func about(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type Contacts struct {
+	Id             int
+	Title, Content string
+}
+
 func contacts(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"./ui/html/contacts.page.html",
@@ -152,7 +157,38 @@ func contacts(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
-	err = ts.Execute(w, nil)
+
+	db, err := sql.Open("mysql", "root:@/snippetbox")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT id,title,content FROM snippets")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var c []Contacts
+	for rows.Next() {
+		var id int
+		var title, content string
+
+		err = rows.Scan(&id, &title, &content)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		item := Contacts{
+			id,
+			title,
+			content,
+		}
+		c = append(c, item)
+	}
+
+	err = ts.Execute(w, c)
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, "Internal Server Error", 500)

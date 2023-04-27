@@ -5,6 +5,10 @@
 {{define "main"}}
     <h2>Наши Контакты</h2>
     {{range .}}
-        <p>{{.Id}} {{.Title}}</p>
+        <p>{{.Id}} {{.Title}} </p>
+        <p>{{.Content}}</p>
+        <br>
     {{end}}
 {{end}}
+
+

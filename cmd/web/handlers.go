@@ -33,7 +33,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("mysql", "root:@/snippetbox")
+	db, err := sql.Open("mysql", "newuser:password@/snippetbox")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -104,7 +104,7 @@ func about(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("mysql", "root:@/snippetbox")
+	db, err := sql.Open("mysql", "newuser:password@/snippetbox")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -158,7 +158,7 @@ func contacts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("mysql", "root:@/snippetbox")
+	db, err := sql.Open("mysql", "newuser:password@/snippetbox")
 	if err != nil {
 		log.Fatal(err)
 	}
